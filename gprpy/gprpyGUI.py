@@ -711,10 +711,14 @@ class GPRPyApp:
                 
         
     def loadData(self,proj):
+        """
+        Minor modifications to allow reading lowercase DZT files (alecomunian)
+        """
         filename = fd.askopenfilename( filetypes= (("All", "*.*"),
                                                    ("GPRPy (.gpr)", "*.gpr"),
                                                    ("Sensors and Software (.DT1)", "*.DT1"),
                                                    ("GSSI (.DZT)", "*.DZT"),
+                                                   ("GSSI (.dzt)", "*.dzt"),
                                                    ("BSQ header","*.GPRhdr"),
                                                    ("MALA header","*.rad")))
         if filename:
