@@ -92,18 +92,29 @@ class gprpyProfile:
             histstr = "mygpr.importdata('%s')" %(filename)
             self.history.append(histstr)                                
             
-        elif file_ext==".DZT":
+        elif file_ext in (".DZT", ".dzt"):
+
 
             self.data, self.info = gprIO_DZT.readdzt(filename)
+            nchan = self.info["rh_nchan"]
 
             if self.info["rhf_spm"] != 0:
-                self.profilePos = self.info["rhf_position"]+np.linspace(0.0,
-                                                                        self.data.shape[1]/self.info["rhf_spm"],
-                                                                        self.data.shape[1])
+                # The aquisition is performed in spatial mode
+                # NOT SURE IF "rhf_position" IS PROVIDED IN METERS FOR THE DUAL CHANNEL FILES.
+                # IN THE CURRENT VERSION, IT SEEMS TO BE PROVIDED IN [ns]...
+                # THEREFORE, I SET IT TO 0.0
+                self.profilePos = np.linspace(0.0,
+                                              self.data.shape[1]/self.info["rhf_spm"]/nchan,
+                                              int(self.data.shape[1]/nchan))
+                # THIS IS THE OLD VERSION
+                # self.profilePos = self.info["rhf_position"]+np.linspace(0.0,
+                #                                                         self.data.shape[1]/self.info["rhf_spm"],
+                #                                                         self.data.shape[1])
+                
             else:
                 self.profilePos = self.info["rhf_position"]+np.linspace(0.0,
-                                                                        self.data.shape[1]/self.info["rhf_sps"],
-                                                                        self.data.shape[1])
+                                                                        self.data.shape[1]/self.info["rhf_sps"]/nchan,
+                                                                        self.data.shape[1]/nchan)
                 
             self.twtt = np.linspace(0,self.info["rhf_range"],self.info["rh_nsamp"])
 
@@ -192,7 +203,7 @@ class gprpyProfile:
             self.initPrevious()
             
         else:
-            print("Can only read dt1, DT1, hd, HD, DZT, dat, GPRhdr, rad, rd3, rd7, and gpr files")
+            print("Can only read dt1, DT1, hd, HD, DZT, dzt, dat, GPRhdr, rad, rd3, rd7, and gpr files")
 
     def showHistory(self):
         '''
@@ -788,7 +799,7 @@ class gprpyProfile:
                                                                              topoVal=topoVal,
                                                                              twtt=self.twtt)
         # Put in history
-        if delimiter is ',':
+        if delimiter == ',':
             histstr = "mygpr.topoCorrect('%s')" %(topofile)
         else:
             histstr = "mygpr.topoCorrect('%s',delimiter='\\t')" %(topofile)
@@ -910,12 +921,12 @@ class gprpyProfile:
             histstr = "mygpr.exportVTK('%s',aspect=%g)" %(outfile,aspect)
         else:
             if type(gpsinfo) is str:            
-                if delimiter is ',':
+                if delimiter in (',',):
                     histstr = "mygpr.exportVTK('%s',gpsinfo='%s',thickness=%g,delimiter=',',aspect=%g,smooth=%r, win_length=%d, porder=%d)" %(outfile,gpsinfo,thickness,aspect,smooth,win_length,porder)
                 else:
                     histstr = "mygpr.exportVTK('%s',gpsinfo='%s',thickness=%g,delimiter='\\t',aspect=%g,smooth=%r, win_length=%d, porder=%d)" %(outfile,gpsinfo,thickness,aspect,smooth,win_length,porder)
             else:
-                if delimiter is ',':
+                if delimiter in (',',):
                     histstr = "mygpr.exportVTK('%s',gpsinfo=mygpr.threeD,thickness=%g,delimiter=',',aspect=%g,smooth=%r, win_length=%d, porder=%d)" %(outfile,thickness,aspect,smooth,win_length,porder)
                 else:
                     histstr = "mygpr.exportVTK('%s',gpsinfo=mygpr.threeD,thickness=%g,delimiter='\\t',aspect=%g,smooth=%r, win_length=%d, porder=%d)" %(outfile,thickness,aspect,smooth,win_length,porder)
@@ -1076,9 +1087,9 @@ class gprpyCW(gprpyProfile):
         # Store previous state for undo
         self.storePrevious()
         self.vVals = np.arange(vmin,vmax+vint,vint)
-        if self.dtype is "WARR":
+        if self.dtype in ("WARR",):
             typefact = 1
-        elif self.dtype is "CMP":
+        elif self.dtype in ("CMP",):
             typefact = 2
         self.linStAmp = tools.linStackedAmplitude(self.data,self.profilePos,self.twtt,self.vVals,self.twtt,typefact)
         print("calculated linear stacked amplitude")
@@ -1104,9 +1115,9 @@ class gprpyCW(gprpyProfile):
         # Store previous state for undo
         self.storePrevious()
         self.vVals = np.arange(vmin,vmax+vint,vint)
-        if self.dtype is "WARR":
+        if self.dtype in ("WARR",):
             typefact = 1
-        elif self.dtype is "CMP":
+        elif self.dtype in ("CMP",):
             typefact = 2
         self.hypStAmp = tools.hypStackedAmplitude(self.data,self.profilePos,self.twtt,self.vVals,self.twtt,typefact)
         print("calculated hyperbola stacked amplitude")

@@ -2,12 +2,13 @@ import struct
 import numpy as np
 #import re # Regular expressions
 
-def readdzt(filename):
+def readdzt(filename, verbose=True):
     '''
     Reads a GSSI .DZT data file. 
 
     INPUT: 
     filename     data file name including .DZT extension
+    verbose      flag to print out some header information.
 
     OUTPUT:
     data          data matrix whose columns contain the traces
@@ -18,7 +19,7 @@ def readdzt(filename):
     '''
 
     # Documentation file is DZT.File.Format.6-14-16.pdf
-    
+
     info = {}
     
     fid = open(filename,'rb');
@@ -101,10 +102,30 @@ def readdzt(filename):
 
     # number of channels
     rh_nchan = struct.unpack('h',fid.read(2))[0] # Pos 52
+    info["rh_nchan"] = rh_nchan
 
     # ... and more stuff we don't really need
 
     fid.close()
+
+    # If "Verbose", print out the information read from the header
+    if verbose:
+        print("rh_tag:", rh_tag)
+        print("rh_data:", rh_data, "(size of the header)")
+        print("rh_nsamp:", rh_nsamp, "(samples per trace)")
+        print("rh_bits:", rh_bits, "(bits per word)")
+        print("rh_zero:", rh_zero, "(binary offset)")
+        print("rhf_sps:", rhf_sps, "(scans per second)")
+        print("rhf_spm:", rhf_spm, "(scans per meter)")
+        print("rhf_mpm:", rhf_mpm, "(meters per mark)")
+        print("rhf_position:", rhf_position, "(start position [ns])")
+        print("rhf_range:", rhf_range, "(lenght of trace [ns])")
+        print("rh_npass:", rh_npass, "(number of passes)")
+        print("rhb_cdt:", rhb_cdt, "(Creation date and time)")
+        print("rh_nchan:", rh_nchan, "(Number of channels)")
+        
+        
+        
 
     # offset will tell us how long the header is in total
     # There could be a minimal header of 1024 bits

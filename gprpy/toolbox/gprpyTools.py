@@ -322,7 +322,7 @@ def prepTopo(topofile,delimiter=',',xStart=0):
     topomat = np.asmatrix(topotable)
     # Depending if the table has two or three columns,
     # need to treat it differently
-    if topomat.shape[1] is 3:
+    if topomat.shape[1] == 3:
         # Save the three columns
         threeD = topomat
         # Turn the three-dimensional positions into along-profile
@@ -336,7 +336,7 @@ def prepTopo(topofile,delimiter=',',xStart=0):
         )
         alongdist = np.cumsum(steplen)
         topoPos = np.append(xStart,alongdist+xStart)
-    elif topomat.shape[1] is 2:
+    elif topomat.shape[1] == 2:
         threeD = None
         topoPos = topomat[:,0]
         topoVal = topomat[:,1]
@@ -400,6 +400,8 @@ def correctTopo(data, velocity, profilePos, topoPos, topoVal, twtt):
         # Enter every trace at the right place into newdata
         for pos in range(0,len(profilePos)):
             #print(type(tshift[pos][0]))
+#            print("POS", pos)
+#            print(len(profilePos))
             newdata[tshift[pos][0]:tshift[pos][0]+nsamples ,pos] = np.squeeze(data[:,pos])
         return newdata, newtwtt, np.max(elev), np.min(elev)
 
@@ -438,7 +440,7 @@ def prepVTK(profilePos,gpsmat=None,smooth=True,win_length=51,porder=3):
         #gpsmat=np.asmatrix(gpsmat)
         # Turn the three-dimensional positions into along-profile
         # distances
-        if gpsmat.shape[1] is 3:
+        if gpsmat.shape[1] == 3:
             npos = gpsmat.shape[0]
             steplen = np.sqrt(
                 np.power( gpsmat[1:npos,0]-gpsmat[0:npos-1,0] ,2.0) + 
